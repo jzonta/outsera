@@ -1,0 +1,49 @@
+const fs = require('fs');
+const csv = require('csv-parser');
+
+class MovieDatabaseLoader {
+    constructor(db, csvFilePath) {
+        this.db = db;
+        this.csvFilePath = csvFilePath;
+    }
+
+    initializeDatabase() {
+        this.db.serialize(() => {
+            this.db.run(`
+                CREATE TABLE movies (
+                    year INTEGER,
+                    title TEXT,
+                    studios TEXT,
+                    producers TEXT,
+                    winner TEXT
+                )
+            `, (err) => {
+                if (err) {
+                    console.error('Erro ao criar a tabela:', err.message);
+                } else {
+                    console.log('Tabela movies criada com sucesso.');
+                    this.loadCSV();
+                }
+            });
+        });
+    }
+
+    loadCSV() {
+        const insertStmt = this.db.prepare(`INSERT INTO movies (year, title, studios, producers, winner) VALUES (?, ?, ?, ?, ?)`);
+
+        fs.createReadStream(this.csvFilePath)
+            .pipe(csv({ separator: ';', mapHeaders: ({ header }) => header.trim() }))
+            .on('data', (row) => {
+                insertStmt.run(row.year, row.title, row.studios, row.producers, row.winner);
+            })
+            .on('end', () => {
+                insertStmt.finalize();
+                console.log('CSV importado com sucesso!');
+            })
+            .on('error', (err) => {
+                console.error('Erro ao ler o CSV:', err.message);
+            });
+    }
+}
+
+module.exports = MovieDatabaseLoader;

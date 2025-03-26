@@ -1,0 +1,19 @@
+{
+  "name": "outsera",
+  "version": "1.0.0",
+  "description": "API teste Outsera",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "João A. Zonta <joao@joaozonta.com.br>",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
